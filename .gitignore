@@ -1,0 +1,30 @@
+# --- MU-TH-UR 6000 STEALTH PROTOCOL ---
+
+# System Files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Local Shell History (Never leak your commands!)
+.bash_history
+.fish_history
+.python_history
+
+# Temporary / Log Files
+*.log
+tmp/
+temp/
+
+# Backup Files
+*.bak
+*.old
+
+# Credentials (Safety First)
+.env
+auth.txt
+*.key
+*.pem
+
+# Folder-specific ignore (If you have local test sounds)
+# local_test_sounds/
