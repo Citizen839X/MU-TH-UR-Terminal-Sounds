@@ -1,21 +1,10 @@
 #!/bin/bash
 # ==========================================================
-# MU-TH-UR 6000 - UNIVERSAL TERMINAL INSTALLER
-# SERIAL: WAYLAND-YUTANI#056709
-#
-# Copyright (C) 2026 Carlo Sitaro
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License.
-# ==========================================================
-
-#!/bin/bash
-# ==========================================================
-# MU-TH-UR 6000 - UNIVERSAL TERMINAL INSTALLER
+# MU-TH-UR 6000 - UNIVERSAL TERMINAL INSTALLER v.1.1.5
 # SERIAL: WAYLAND-YUTANI#056709
 # ==========================================================
 
-echo "--- INITIALIZING WEYLAND-YUTANI DEPLOYMENT ---"
+echo "--- INITIALIZING WEYLAND-YUTANI DEPLOYMENT v.1.1.5 ---"
 
 # 1. Dependency Check
 if [ -f /etc/os-release ]; then
@@ -28,43 +17,48 @@ if [ -f /etc/os-release ]; then
     esac
 fi
 
-# 2. Sound Asset Deployment (Corrected Folder Name)
+# 2. Strict Sound Asset Deployment (Only 4 Core Files)
 DEST_DIR="$HOME/sounds_terminal"
 SRC_DIR="./sounds_terminal"
 
-echo "--- DEPLOYING AUDIO ASSETS TO $DEST_DIR ---"
+echo "--- DEPLOYING CORE AUDIO ASSETS TO $DEST_DIR ---"
 mkdir -p "$DEST_DIR"
 
 if [ -d "$SRC_DIR" ]; then
-    cp "$SRC_DIR"/*.ogg "$DEST_DIR/"
-    echo "ASSETS DEPLOYED SUCCESSFULLY."
+    # Selective transfer of the 4 core pillars
+    cp "$SRC_DIR/bkg_loop.ogg" "$DEST_DIR/" 2>/dev/null
+    cp "$SRC_DIR/start.ogg" "$DEST_DIR/" 2>/dev/null
+    cp "$SRC_DIR/message.ogg" "$DEST_DIR/" 2>/dev/null
+    cp "$SRC_DIR/logout.ogg" "$DEST_DIR/" 2>/dev/null
+    
+    echo "CORE ASSETS DEPLOYED: bkg_loop, start, message, logout."
 else
-    echo "ERROR: Source folder '$SRC_DIR' not found in current directory."
+    echo "ERROR: Source folder '$SRC_DIR' not found."
     exit 1
 fi
 
-# 3. Fish Configuration (Universal Pathing)
+# 3. Fish Configuration (v.1.1.5 - Minimalist & Error-Aware)
 FISH_CONF="$HOME/.config/fish/config.fish"
 mkdir -p "$HOME/.config/fish"
 
 cat << 'EOF' > "$FISH_CONF"
-# --- MU-TH-UR 6000 CORE INTERFACE ---
+# --- MU-TH-UR 6000 CORE INTERFACE v.1.1.5 ---
 # AUTH_CODE: WAYLAND-YUTANI#056709
 
 function fish_greeting
     set -l AUDIO_PATH "$HOME/sounds_terminal"
     
-    # Background Ambient Loop
-    setsid sh -c "while true; do play -q $AUDIO_PATH/wait.ogg $AUDIO_PATH/installation_loop.ogg $AUDIO_PATH/wait.ogg; done" >/dev/null 2>&1 & disown
+    # Background Ambient Loop (Continuous & Gapless)
+    play -q "$AUDIO_PATH/bkg_loop.ogg" repeat - >/dev/null 2>&1 & disown
 
     # Startup Sequence
-    setsid play -q $AUDIO_PATH/start.ogg >/dev/null 2>&1 & disown
+    play -q "$AUDIO_PATH/start.ogg" >/dev/null 2>&1 & disown
     
     echo "----------------------------------------" | pv -qL 100
-    echo "   MU-TH-UR 6000 SYSTEMS - INTERFACE    " | pv -qL 100
-    setsid play -q $AUDIO_PATH/message.ogg >/dev/null 2>&1 & disown
+    echo "    MU-TH-UR 6000 SYSTEMS - INTERFACE    " | pv -qL 100
+    play -q "$AUDIO_PATH/message.ogg" >/dev/null 2>&1 & disown
     echo "----------------------------------------" | pv -qL 100
-    echo " STATUS: STABLE                         " | pv -qL 100
+    echo " STATUS: STABLE (v.1.1.5)               " | pv -qL 100
     echo " CORE: ACTIVE                           " | pv -qL 100
     echo " AUTH: WAYLAND-YUTANI#056709            " | pv -qL 100
     echo " USER: $USER                            " | pv -qL 100
@@ -72,17 +66,27 @@ function fish_greeting
     echo " READY FOR INPUT...                     " | pv -qL 100
 end
 
-function on_command_exec --on-event fish_preexec
-    if not string match -q "exit" $argv
-        setsid play -q "$HOME/sounds_terminal/command.ogg" >/dev/null 2>&1 & disown
+# Error Feedback (e.g., Root privileges required / Syntax error)
+function on_command_error --on-event fish_postexec
+    if test $status -ne 0
+        play -q "$HOME/sounds_terminal/message.ogg" >/dev/null 2>&1 & disown
     end
 end
 
+# Cleanup on Shell Exit
 function on_exit_cleanup --on-event fish_exit
-    pkill -f "$HOME/sounds_terminal/" >/dev/null 2>&1
     killall play >/dev/null 2>&1
     play -q "$HOME/sounds_terminal/logout.ogg"
 end
 EOF
 
-echo "--- INSTALLATION COMPLETE. RESTART FISH SHELL. ---"
+# --- MISSION COMPLETE SIGNAL ---
+echo "----------------------------------------"
+echo "--- v.1.1.5 INSTALLATION COMPLETE.   ---"
+echo "--- RESTART FISH SHELL TO ACTIVATE.  ---"
+echo "----------------------------------------"
+
+# 🔊 Triggering message.ogg as a success chime for the installer itself
+if [ -f "$DEST_DIR/message.ogg" ]; then
+    play -q "$DEST_DIR/message.ogg" >/dev/null 2>&1 &
+fi
